@@ -22,6 +22,24 @@ alias gs='git status'
 alias gb='git branch'
 alias postgres='sudo -u postgres psql postgres'
 
+function adduser_to_postgres {
+  if [ $# -ne 2 ]; then
+    echo "Usage: adduser_to_postgres <username> <password>"
+    return
+  fi
+  sudo -u postgres psql -c "create user $1 with encrypted password '$2';"
+  sudo -u postgres psql -c "grant all privileges on database wiki_o to $1;"
+  sudo -u postgres psql -c "grant all privileges on database feedback_wiki_o to $1;"
+}
+
+function drop_db {
+  if pwd | grep -q "feedback.wiki-o.com"; then
+    sudo -u postgres psql -c "drop database feedback_wiki_o;"
+  else
+    sudo -u postgres psql -c "drop database wiki_o;"
+  fi
+}
+
 function restore () {
   if pwd | grep -q "feedback.wiki-o.com"; then
     python3 /home/django/feedback.wiki-o.com/manage.py restore "$@"
