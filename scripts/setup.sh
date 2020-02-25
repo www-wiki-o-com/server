@@ -22,17 +22,22 @@ VENV_DIR="$PROJECT_DIR/venv"
 # Parse arguments
 APACHE=false
 BASH_RC=false
+CRONTAB=true
 EMAIL=false
 POSTGRES=false
 REPOS=fals
+UBUNTU=false
 VENV=false
-while getopts "abeprv" flag; do
+while getopts "abcepruv" flag; do
   case $flag in
     a)
       APACHE=true
       ;;
     b)
       BASH_RC=true
+      ;;
+    c)
+      CRONTAB=true
       ;;
     e)
       EMAIL=true
@@ -42,6 +47,9 @@ while getopts "abeprv" flag; do
       ;;
     r)
       REPOS=true
+      ;;
+    u)
+      UBUNTU=true
       ;;
     v)
       VENV=true
@@ -116,6 +124,19 @@ if [ $BASH_RC == true ]; then
     echo ".bashrc already contains $source"
     echo "$DOMAINNAME"
   fi
+  echo "Done."
+fi
+
+# Setup crontab
+if [ $CRONTAB == true ]; then
+  echo "Updating crontab"
+  source=""
+  if [ "$DOMAINNAME" == "wiki-o.com" ]; then
+    source="$CONFIG_DIR/a2host.crontab"
+  elif [ "$DOMAINNAME" == "wiki-x.com" ]; then
+    source="$CONFIG_DIR/a2mirror.crontab"
+  fi
+  cat $source|crontab -
   echo "Done."
 fi
 
@@ -243,9 +264,32 @@ if [ $POSTGRES == true ]; then
   echo "Done"
 fi
 
+# Setup Ubuntu
+if [ $UBUNTU == true ]; then
+  if [ "$EUID" -eq 0 ]; then
+    echo "Setting up ubuntu packages..."
+  else
+    echo "Please run as root."
+    exit
+  fi
+  apt update
+  apt install git
+  apt install postgresql
+  apt install alpine
+  apt install python3
+  apt install python3-pip
+  apt install apache2 
+  apt install libapache2-mod-wsgi-py3
+  apt install dnsutils
+  apt install vim
+  localedef -i en_US -f UTF-8 en_US.UTF-8
+fi
+
 # Setup the virtual environment
 if [ $VENV == true ]; then
   echo "Creating the virtual environment..."
+  pip3 install --upgrade pip
+  pip3 install virtualenv
   rm $PROJECT_DIR/venv -rf
   virtualenv $PROJECT_DIR/venv
   source $PROJECT_DIR/venv/bin/activate

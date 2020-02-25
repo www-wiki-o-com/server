@@ -23,19 +23,24 @@ alias gb='git branch'
 alias postgres='sudo -u postgres psql postgres'
 
 function a2host () {
-  if [ $# -lt 2 ]; then
+  if [ $# -lt 1 ]; then
     echo "Usage: a2host <push or pull> <path>"
     return
   fi
 
-  X=$(readlink -f $2)
+  if [ $# -eq 1 ]; then
+    X=$(pwd)
+  else
+    X=$(readlink -f $2)
+  fi
+
   if [ -d $X ]; then X="$X/"; fi
 
   RSYNC_CMD="rsync --update --exclude=.git --exclude=*.backup --exclude=*.pyc -avz"
   if [ $1 == "push" ]; then
-    $RSYNC_CMD "$X" -e "ssh -p 7822" "$USER@75.98.169.10:$X"
+    $RSYNC_CMD "$X" -e "ssh -p 7822" "$USER@75.98.169.10:$X" "${@:3}"
   elif [ $1 == "pull" ]; then
-    $RSYNC_CMD -e "ssh -p 7822" "$USER@75.98.169.10:$X" "$X"
+    $RSYNC_CMD -e "ssh -p 7822" "$USER@75.98.169.10:$X" "$X" "${@:3}"
   else
     echo "Error: The first argument must be push or pull."
     echo "Usage: a2host <push or pull> <path>"
@@ -45,11 +50,16 @@ function a2host () {
 
 function a2mirror () {
   if [ $# -lt 2 ]; then
-    echo "Usage: a2host <push or pull> <path>"
+    echo "Usage: a2mirror <push or pull> <path>"
     return
   fi
 
-  X=$(readlink -f $2)
+  if [ $# -eq 1 ]; then
+    X=$(pwd)
+  else
+    X=$(readlink -f $2)
+  fi
+
   if [ -d $X ]; then X="$X/"; fi
 
   RSYNC_CMD="rsync --update --exclude=.git --exclude=*.backup --exclude=*.pyc -avz"
@@ -59,7 +69,7 @@ function a2mirror () {
     $RSYNC_CMD -e "ssh -p 7822" "$USER@162.249.2.136:$X" "$X" "${@:3}"
   else
     echo "Error: The first argument must be push or pull."
-    echo "Usage: a2host <push or pull> <path>"
+    echo "Usage: a2mirror <push or pull> <path>"
     return
   fi
 }
