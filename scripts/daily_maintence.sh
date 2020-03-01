@@ -1,16 +1,16 @@
 #!/bin/bash
+source /home/django/venv/bin/activate
+
 #      __      __    __               ___
 #     /  \    /  \__|  | _ __        /   \
 #     \   \/\/   /  |  |/ /  |  __  |  |  |
 #      \        /|  |    <|  | |__| |  |  |
 #       \__/\__/ |__|__|__\__|       \___/
 #
-# A web service for sharing opinions and avoiding arguments
+# Copyright (C) 2018 Wiki-O, Frank Imeson
 #
-# file        scripts/daily_maintence.sh
-# copyright   GNU Public License, 2018
-# authors     Frank Imeson
-# brief       A managment script for daily maintence
+# This source code is licensed under the GPL license found in the
+# LICENSE.md file in the root directory of this source tree.
 
 PROJECT_DIR="/home/django"
 WWW_WIKI_O_DIR=$PROJECT_DIR/www.wiki-o.com
@@ -18,6 +18,7 @@ FEEDBACK_WIKI_O_DIR=$PROJECT_DIR/feedback.wiki-o.com
 
 python3 $WWW_WIKI_O_DIR/manage.py backup
 python3 $WWW_WIKI_O_DIR/manage.py clearsessions
+python3 $WWW_WIKI_O_DIR/manage.py clean --categories
 
 python3 $FEEDBACK_WIKI_O_DIR/manage.py backup
 python3 $FEEDBACK_WIKI_O_DIR/manage.py clearsessions

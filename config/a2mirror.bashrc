@@ -4,14 +4,12 @@
 #      \        /|  |    <|  | |__| |  |  |
 #       \__/\__/ |__|__|__\__|       \___/
 #
-# A web service for sharing opinions and avoiding arguments
+# Copyright (C) 2018 Wiki-O, Frank Imeson
 #
-# file        config/a2mirror.bashrc
-# copyright   GNU Public License, 2018
-# authors     Frank Imeson
-# brief       A collection of commands and environment variables
+# This source code is licensed under the GPL license found in the
+# LICENSE.md file in the root directory of this source tree.
 
-# some more ls aliases
+# Some more ls aliases
 alias cls='printf "\033c"'
 alias python='python3'
 alias pip='pip3'
@@ -52,10 +50,10 @@ function run-tests () {
   pushd .
   if pwd | grep -q "feedback.wiki-o.com"; then
     cd /home/django/feedback.wiki-o.com/
-    ./manage.py test -v2 --failfast "$@"
+    ./manage.py test -v2 "$@"
   else
     cd /home/django/www.wiki-o.com/
-    ./manage.py test -v2 --failfast "$@"
+    ./manage.py test -v2 "$@"
   fi
   popd
 }

@@ -4,14 +4,12 @@
 #      \        /|  |    <|  | |__| |  |  |
 #       \__/\__/ |__|__|__\__|       \___/
 #
-# A web service for sharing opinions and avoiding arguments
+# Copyright (C) 2018 Wiki-O, Frank Imeson
 #
-# file        config/local.bashrc
-# copyright   GNU Public License, 2018
-# authors     Frank Imeson
-# brief       A collection of commands and environment variables
+# This source code is licensed under the GPL license found in the
+# LICENSE.md file in the root directory of this source tree.
 
-# some more ls aliases
+# Some more ls aliases
 alias cls='printf "\033c"'
 alias python='python3'
 alias pip='pip3'
@@ -23,8 +21,13 @@ alias gb='git branch'
 alias postgres='sudo -u postgres psql postgres'
 
 function a2host () {
-  if [ $# -lt 1 ]; then
-    echo "Usage: a2host <push or pull> <path>"
+  if [ $# -gt 2 ]; then
+    echo "Usage: a2mirror <push or pull> <path>"
+    return
+  fi
+
+  if [ $# -eq 0 ]; then
+    ssh -p 7822 $USER@wiki-o
     return
   fi
 
@@ -49,8 +52,13 @@ function a2host () {
 }
 
 function a2mirror () {
-  if [ $# -lt 2 ]; then
+  if [ $# -gt 2 ]; then
     echo "Usage: a2mirror <push or pull> <path>"
+    return
+  fi
+
+  if [ $# -eq 0 ]; then
+    ssh -p 7822 $USER@wiki-x
     return
   fi
 
@@ -74,7 +82,7 @@ function a2mirror () {
   fi
 }
 
-function adduser_to_postgres {
+function adduser-to-postgres {
   if [ $# -ne 2 ]; then
     echo "Usage: adduser_to_postgres <username> <password>"
     return
@@ -84,12 +92,34 @@ function adduser_to_postgres {
   sudo -u postgres psql -c "grant all privileges on database feedback_wiki_o to $1;"
 }
 
-function drop_db {
+function drop-db {
   if pwd | grep -q "feedback.wiki-o.com"; then
+    sudo -u postgres psql -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'feedback_wiki_o' AND pid <> pg_backend_pid();"
     sudo -u postgres psql -c "drop database feedback_wiki_o;"
   else
+    sudo -u postgres psql -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'wiki_o' AND pid <> pg_backend_pid();"
     sudo -u postgres psql -c "drop database wiki_o;"
   fi
+}
+
+function create-db {
+  if pwd | grep -q "feedback.wiki-o.com"; then
+    sudo -u postgres psql -c "create database feedback_wiki_o;"
+    sudo -u postgres psql -c "grant all privileges on database feedback_wiki_o to $PGUSER;"
+  else
+    sudo -u postgres psql -c "create database wiki_o;"
+    sudo -u postgres psql -c "grant all privileges on database wiki_o to $PGUSER;"
+  fi
+}
+
+function manage () {
+  pushd .
+  if pwd | grep -q "feedback.wiki-o.com"; then
+    python3 /home/django/feedback.wiki-o.com/manage.py "$@"
+  else
+    python3 /home/django/www.wiki-o.com/manage.py "$@"
+  fi
+  popd
 }
 
 function restore () {
@@ -104,10 +134,10 @@ function run-tests () {
   pushd .
   if pwd | grep -q "feedback.wiki-o.com"; then
     cd /home/django/feedback.wiki-o.com/
-    ./manage.py test -v2 --failfast "$@"
+    ./manage.py test --verbosity=2 "$@"
   else
     cd /home/django/www.wiki-o.com/
-    ./manage.py test -v2 --failfast "$@"
+    ./manage.py test --verbosity=2 "$@"
   fi
   popd
 }
@@ -130,7 +160,10 @@ function restart-apache () {
 export PYTHONPATH=~/lib/python/:$PYTHONPATH
 PATH=~/bin:/home/django/scripts:$PATH
 
-# Virutal Env
+# Virutal Environment
 source /home/django/venv/bin/activate
 cd /home/django/www.wiki-o.com
 export EDITOR=vim
+
+# Private Environment Variables
+source /home/django/config/local.env_vars.sh

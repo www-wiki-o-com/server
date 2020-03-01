@@ -1,17 +1,16 @@
 #!/bin/bash
+source /home/django/venv/bin/activate
+
 #      __      __    __               ___
 #     /  \    /  \__|  | _ __        /   \
 #     \   \/\/   /  |  |/ /  |  __  |  |  |
 #      \        /|  |    <|  | |__| |  |  |
 #       \__/\__/ |__|__|__\__|       \___/
 #
-# A web service for sharing opinions and avoiding arguments
+# Copyright (C) 2018 Wiki-O, Frank Imeson
 #
-# file        scripts/sync_user_data.sh
-# copyright   GNU Public License, 2018
-# authors     Frank Imeson
-# brief       A managment script for migrating/syncronozing user data from www.wiki-o.com
-#             to feedback.wiki-o.com
+# This source code is licensed under the GPL license found in the
+# LICENSE.md file in the root directory of this source tree.
 
 # Setup
 DOMAINNAME=$(hostname -d)

@@ -1,28 +1,28 @@
 #!/bin/bash
+source /home/django/venv/bin/activate
+source /home/django/config/local.env_vars.sh
+
 #      __      __    __               ___
 #     /  \    /  \__|  | _ __        /   \
 #     \   \/\/   /  |  |/ /  |  __  |  |  |
 #      \        /|  |    <|  | |__| |  |  |
 #       \__/\__/ |__|__|__\__|       \___/
 #
-# A web service for sharing opinions and avoiding arguments
+# Copyright (C) 2018 Wiki-O, Frank Imeson
 #
-# file        scripts/setup.sh
-# copyright   GNU Public License, 2018
-# authors     Frank Imeson
-# brief       A managment script for setting up the server environment
+# This source code is licensed under the GPL license found in the
+# LICENSE.md file in the root directory of this source tree.
 
 # Environment variables
 DOMAINNAME=$(hostname -d)
 PROJECT_DIR="/home/django"
 CONFIG_DIR="$PROJECT_DIR/config"
 VENV_DIR="$PROJECT_DIR/venv"
-/home/django/config/local.env_vars.py
 
 # Parse arguments
 APACHE=false
 BASH_RC=false
-CRONTAB=true
+CRONTAB=false
 EMAIL=false
 POSTGRES=false
 REPOS=fals
@@ -68,8 +68,8 @@ if [ $APACHE == true ]; then
     echo "Please run as root to configure Apache."
     exit
   fi
-  
-  cmd="rm -f /etc/apache2/sites-available/wiki-o.conf"; 
+
+  cmd="rm -f /etc/apache2/sites-available/wiki-o.conf";
   echo $cmd
   $cmd
   if [ "$DOMAINNAME" == "wiki-o.com" ]; then
@@ -172,20 +172,20 @@ if [ $EMAIL == true ]; then
 
     echo "accounts@wiki-x.com   $USER@wiki-x.com" >> $POSTFIX_DIR/virtual
     echo "contact@wiki-x.com    $USER@wiki-x.com" >> $POSTFIX_DIR/virtual
-    echo "admin@wiki-x.com      $USER@wiki-x.com" >> $POSTFIX_DIR/virtual    
-  fi    
-  
+    echo "admin@wiki-x.com      $USER@wiki-x.com" >> $POSTFIX_DIR/virtual
+  fi
+
   postmap $POSTFIX_DIR/virtual
   service postfix reload
   echo "Done."
 
   echo "Review the following files for proper construction:"
   echo ""
-  
+
   echo "/etc/mailname"
   cat /etc/mailname
   echo ""
-  
+
   echo "/etc/aliases"
   cat /etc/aliases
   echo ""
@@ -208,7 +208,7 @@ if [ $REPOS == true ]; then
     git clone https://github.com/www-wiki-o-com/www-wiki-o-com.git $WIKI_O_DIR
     python3 $WIKI_O_DIR/manage.py collectstatic
   fi
-  
+
   ENV_VARS_FILE=$WIKI_O_DIR/wiki_o/env_vars.py
   if [[ ! -f $ENV_VARS_FILE ]]; then
     if [ "$DOMAINNAME" == "wiki-o.com" ]; then
@@ -217,7 +217,7 @@ if [ $REPOS == true ]; then
       ln -s $CONFIG_DIR/a2mirror.env_vars.py $ENV_VARS_FILE
     else
       ln -s $CONFIG_DIR/local.env_vars.py $ENV_VARS_FILE
-    fi    
+    fi
   fi
 
   FEEDBACK_WIKI_O_DIR=$PROJECT_DIR/feedback.wiki-o.com
@@ -234,7 +234,7 @@ if [ $REPOS == true ]; then
       ln -s $CONFIG_DIR/a2mirror.env_vars.py $ENV_VARS_FILE
     else
       ln -s $CONFIG_DIR/local.env_vars.py $ENV_VARS_FILE
-    fi    
+    fi
   fi
 
   echo "Done"
@@ -252,7 +252,7 @@ if [ $POSTGRES == true ]; then
   # create default account
   sudo -u postgres psql -c "create user $PGUSER with encrypted password '$PGPASSWORD';"
   sudo -u postgres psql -c "alter user $PGUSER CREATEDB;"
- 
+
   # create the main database
   sudo -u postgres psql -c "create database wiki_o;"
   sudo -u postgres psql -c "grant all privileges on database wiki_o to $PGUSER;"
@@ -278,7 +278,7 @@ if [ $UBUNTU == true ]; then
   apt install alpine
   apt install python3
   apt install python3-pip
-  apt install apache2 
+  apt install apache2
   apt install libapache2-mod-wsgi-py3
   apt install dnsutils
   apt install vim
