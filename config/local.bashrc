@@ -21,11 +21,6 @@ alias gb='git branch'
 alias postgres='sudo -u postgres psql postgres'
 
 function a2host () {
-  if [ $# -gt 2 ]; then
-    echo "Usage: a2mirror <push or pull> <path>"
-    return
-  fi
-
   if [ $# -eq 0 ]; then
     ssh -p 7822 $USER@wiki-o
     return
@@ -35,6 +30,11 @@ function a2host () {
     X=$(pwd)
   else
     X=$(readlink -f $2)
+  fi
+
+  if [ $# -gt 2 ]; then
+    echo "Usage: a2mirror <push or pull> <path>"
+    return
   fi
 
   if [ -d $X ]; then X="$X/"; fi
@@ -52,11 +52,6 @@ function a2host () {
 }
 
 function a2mirror () {
-  if [ $# -gt 2 ]; then
-    echo "Usage: a2mirror <push or pull> <path>"
-    return
-  fi
-
   if [ $# -eq 0 ]; then
     ssh -p 7822 $USER@wiki-x
     return
@@ -66,6 +61,11 @@ function a2mirror () {
     X=$(pwd)
   else
     X=$(readlink -f $2)
+  fi
+
+  if [ $# -gt 2 ]; then
+    echo "Usage: a2mirror <push or pull> <path>"
+    return
   fi
 
   if [ -d $X ]; then X="$X/"; fi
@@ -90,6 +90,7 @@ function adduser-to-postgres {
   sudo -u postgres psql -c "create user $1 with encrypted password '$2';"
   sudo -u postgres psql -c "grant all privileges on database wiki_o to $1;"
   sudo -u postgres psql -c "grant all privileges on database feedback_wiki_o to $1;"
+  sudo -u postgres psql -c "alter user $1 with superuser;"
 }
 
 function drop-db {

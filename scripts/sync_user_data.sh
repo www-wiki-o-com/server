@@ -20,7 +20,7 @@ FEEDBACK_WIKI_O_DIR="/home/django/feedback.wiki-o.com/"
 JSON_FILE="$BACKUP_DIR/tmp_user_data.json"
 
 # Sync
-python3 $WWW_WIKI_O_DIR/manage.py export_user_data $JSON_FILE --fields 'username' 'password'
+python3 $WWW_WIKI_O_DIR/manage.py export --forum_sync_data $JSON_FILE
 sed -i 's/users.user/auth.user/g' $JSON_FILE
 python3 $FEEDBACK_WIKI_O_DIR/manage.py loaddata $JSON_FILE
 rm $JSON_FILE
