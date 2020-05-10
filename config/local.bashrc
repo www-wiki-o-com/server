@@ -152,8 +152,8 @@ function run-server () {
 }
 
 function restart-apache () {
-  python3 /home/django/www.wiki-o.com/manage.py collectstatic
-  python3 /home/django/feedback.wiki-o.com/manage.py collectstatic
+  python3 /home/django/www.wiki-o.com/manage.py collectstatic --no-input
+  python3 /home/django/feedback.wiki-o.com/manage.py collectstatic --no-input
   sudo systemctl restart apache2
 }
 

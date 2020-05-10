@@ -155,8 +155,10 @@ if [ $EMAIL == true ]; then
     echo "root:                 $USER@wiki-o.com" >> /etc/aliases
 
     POSTFIX_DIR=/etc/postfix
-    mv $POSTFIX_DIR/main.cf $POSTFIX_DIR/main.cf_old
-    ln -s $CONFIG_DIR/a2host.postfix.main.cf $POSTFIX_DIR/main.cf
+    if [ ! -f "$POSTFIX_DIR/main.cf_old" ]; then
+      mv $POSTFIX_DIR/main.cf $POSTFIX_DIR/main.cf_old
+    fi
+    cp $CONFIG_DIR/a2host.postfix.main.cf $POSTFIX_DIR/main.cf
 
     echo "accounts@wiki-o.com   $USER@wiki-o.com" >> $POSTFIX_DIR/virtual
     echo "contact@wiki-o.com    $USER@wiki-o.com" >> $POSTFIX_DIR/virtual
@@ -167,15 +169,20 @@ if [ $EMAIL == true ]; then
     echo "root:                 $USER@wiki-x.com" >> /etc/aliases
 
     POSTFIX_DIR=/etc/postfix
-    mv $POSTFIX_DIR/main.cf $POSTFIX_DIR/main.cf_old
-    ln -s $CONFIG_DIR/a2host.postfix.main.cf $POSTFIX_DIR/main.cf
+    if [ ! -f "$POSTFIX_DIR/main.cf_old" ]; then
+      mv $POSTFIX_DIR/main.cf $POSTFIX_DIR/main.cf_old
+    fi
+    cp $CONFIG_DIR/a2host.postfix.main.cf $POSTFIX_DIR/main.cf
 
     echo "accounts@wiki-x.com   $USER@wiki-x.com" >> $POSTFIX_DIR/virtual
     echo "contact@wiki-x.com    $USER@wiki-x.com" >> $POSTFIX_DIR/virtual
     echo "admin@wiki-x.com      $USER@wiki-x.com" >> $POSTFIX_DIR/virtual
   fi
 
+  chmod 644 $POSTFIX_DIR/main.cf
   postmap $POSTFIX_DIR/virtual
+  sudo postalias aliases
+  newaliases
   service postfix reload
   echo "Done."
 
